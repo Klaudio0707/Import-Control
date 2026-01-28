@@ -8,16 +8,21 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 public class App {
 	public static void main(String[] args) {
-		try {
-            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-            if (dotenv.get("DB_USER") != null) {
-                System.setProperty("DB_USER", dotenv.get("DB_USER"));
-                System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-            }
-        } catch (Exception e) {
-            System.out.println(".env não encontrado, seguindo com variáveis de ambiente do sistema.");
-        }
-		SpringApplication.run(App.class, args);
-		System.out.println("Servidor rodando em http://localhost:8080");
-	}
+    System.out.println("📂 DIRETÓRIO DE EXECUÇÃO: " + System.getProperty("user.dir"));
+    Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+
+    String url = dotenv.get("DB_URL");
+    
+    if (url == null) {
+        System.out.println("❌ ERRO: O .env não foi lido ou a variável DB_URL não existe nele.");
+    } else {
+        System.out.println("✅ SUCESSO: .env carregado! URL: " + url);
+    }
+
+    dotenv.entries().forEach(entry -> {
+        System.setProperty(entry.getKey(), entry.getValue());
+    });
+
+    SpringApplication.run(App.class, args);
+}
 }

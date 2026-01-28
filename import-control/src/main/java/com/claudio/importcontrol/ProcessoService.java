@@ -18,7 +18,7 @@ public class ProcessoService {
         List<ProcessoImportacao> processos = repository.findAll();
         if (processos.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum processo encontrado.");
-        }
+            }
 
         return processos;
     }
