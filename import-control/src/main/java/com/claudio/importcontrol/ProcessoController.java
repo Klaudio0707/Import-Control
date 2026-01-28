@@ -1,18 +1,18 @@
 package com.claudio.importcontrol;
 
-import com.claudio.importcontrol.dto.ProcessoDTO; // Importe o DTO
+import java.util.Optional;
+import java.util.List;
+
+import com.claudio.importcontrol.dto.ProcessoDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/processos")
 public class ProcessoController {
-
 
     @Autowired
     private ProcessoService service;
@@ -24,10 +24,10 @@ public class ProcessoController {
 
     @PostMapping
     public ResponseEntity<ProcessoImportacao> salvar(@RequestBody ProcessoDTO dados) {
-        ProcessoImportacao processoSalvo = service.criar(dados);
-        return ResponseEntity.status(HttpStatus.CREATED).body(processoSalvo);
+        ProcessoImportacao salvo = service.criar(dados);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<ProcessoImportacao> buscarPorId(@PathVariable String id) {
         Optional<ProcessoImportacao> processo = service.buscarPorId(id);

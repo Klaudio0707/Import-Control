@@ -1,8 +1,9 @@
 package com.claudio.importcontrol;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class App {
@@ -17,6 +18,6 @@ public class App {
             System.out.println("⚠️ .env não encontrado, seguindo com variáveis de ambiente do sistema.");
         }
 		SpringApplication.run(App.class, args);
-		System.out.println("Servidor rodando em http://localhost:5373");
+		System.out.println("Servidor rodando em http://localhost:8080");
 	}
 }

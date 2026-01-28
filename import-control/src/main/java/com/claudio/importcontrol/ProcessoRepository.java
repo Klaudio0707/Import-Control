@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProcessoRepository extends JpaRepository<ProcessoImportacao, String> {
-    // Agora sim! Você herdou da biblioteca oficial.
+
+    boolean existsByNumeroProcesso(String numeroProcesso);
 }

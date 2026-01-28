@@ -1,8 +1,10 @@
 package com.claudio.importcontrol;
 
-import com.claudio.importcontrol.dto.ProcessoDTO; // Importe o DTO que criamos
+import com.claudio.importcontrol.dto.ProcessoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,21 +13,25 @@ import java.util.Optional;
 public class ProcessoService {
 
     @Autowired
-    private ProcessoRepository repository; // O Service manda no Repository
+    private ProcessoRepository repository;
 
-    // --- 1. LISTAR TODOS ---
     public List<ProcessoImportacao> listar() {
-        // O repository vai no banco e faz o "SELECT * FROM..."
         return repository.findAll();
     }
 
-    // --- 2. CRIAR NOVO (Aqui usamos o DTO) ---
     public ProcessoImportacao criar(ProcessoDTO dados) {
-        // Passo A: Criar uma Entidade vazia
         ProcessoImportacao novoProcesso = new ProcessoImportacao();
 
-        // Passo B: Passar os dados do DTO para a Entidade
-        // (Lembre-se: records não usam 'getNome', usam apenas 'nome()')
+        if (dados.numeroProcesso() == null || dados.identificadorInvoice() == null || dados.fornecedor() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campos obrigatórios faltando.");
+        }
+        if (repository.existsByNumeroProcesso(dados.numeroProcesso())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "DUPLICIDADE: O processo " + dados.numeroProcesso() + " já existe no sistema."
+            );
+        }
+
         novoProcesso.setNumeroProcesso(dados.numeroProcesso());
         novoProcesso.setIdentificadorInvoice(dados.identificadorInvoice());
         novoProcesso.setFornecedor(dados.fornecedor());
@@ -34,16 +40,13 @@ public class ProcessoService {
         novoProcesso.setPrecoPorQuilo(dados.precoPorQuilo());
         novoProcesso.setDataEmbarque(dados.dataEmbarque());
 
-        // Passo C: Salvar no banco
         return repository.save(novoProcesso);
     }
 
-    // --- 3. BUSCAR POR ID ---
     public Optional<ProcessoImportacao> buscarPorId(String id) {
         return repository.findById(id);
     }
 
-    // --- 4. EXCLUIR ---
     public void excluir(String id) {
         repository.deleteById(id);
     }
