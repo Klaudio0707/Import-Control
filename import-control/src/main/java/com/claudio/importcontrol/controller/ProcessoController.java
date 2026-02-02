@@ -1,4 +1,4 @@
-package com.claudio.importcontrol;
+package com.claudio.importcontrol.controller;
 
 import java.util.List;
 
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.claudio.importcontrol.dto.ProcessoDTO;
+import com.claudio.importcontrol.entity.ProcessoImportacao;
+import com.claudio.importcontrol.service.ProcessoService;
 
 @RestController
 @RequestMapping("/processos")

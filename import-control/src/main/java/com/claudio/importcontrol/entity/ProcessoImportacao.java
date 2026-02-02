@@ -1,4 +1,4 @@
-package com.claudio.importcontrol;
+package com.claudio.importcontrol.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -79,15 +79,16 @@ public class ProcessoImportacao {
         this.dataEmbarque = data;
     }
 
-    void setNumeroProcesso(String numeroProcesso) {
+    public void setNumeroProcesso(String numeroProcesso) {
         this.numeroProcesso = numeroProcesso;
     }
 
-    void setIdentificadorInvoice(String identificadorInvoice) {
+    public void setIdentificadorInvoice(String identificadorInvoice) {
         this.identificadorInvoice = identificadorInvoice;
     }
 
-    void setFornecedor(String fornecedor) {
-        this.fornecedor = fornecedor;
+    public void setFornecedor(String fornecedorInvoice) {
+        this.fornecedor = fornecedorInvoice;
     }
+    
 }

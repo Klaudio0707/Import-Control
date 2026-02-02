@@ -1,5 +1,4 @@
-package com.claudio.importcontrol;
-
+package com.claudio.importcontrol.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.claudio.importcontrol.dto.ProcessoDTO;
+import com.claudio.importcontrol.entity.ProcessoImportacao;
+import com.claudio.importcontrol.repository.ProcessoRepository;
 
 @Service
 public class ProcessoService {
