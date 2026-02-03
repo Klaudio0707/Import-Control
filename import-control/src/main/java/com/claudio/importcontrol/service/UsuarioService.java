@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.claudio.importcontrol.dto.UsuarioDTO;
 import com.claudio.importcontrol.entity.Usuario;
+import com.claudio.importcontrol.enums.UserRole;
 import com.claudio.importcontrol.repository.UsuarioRepository;
 
 import java.util.List;
@@ -23,9 +24,9 @@ public class UsuarioService {
         usuario.setNome(dados.nome());
         usuario.setEmail(dados.email());
         usuario.setSenha(dados.senha()); 
+        usuario.setRole(UserRole.USER);
 
         //usarei o hash 
-
         try {
             return repository.save(usuario);
         } catch (DataIntegrityViolationException e) {
