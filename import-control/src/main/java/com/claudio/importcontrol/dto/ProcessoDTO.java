@@ -10,7 +10,8 @@ public record ProcessoDTO(
     String produto,
     Double quantidade,
     BigDecimal precoPorQuilo,
-    LocalDate dataEmbarque
+    LocalDate dataEmbarque,
+    Long usuarioId
 ) {
     
     

@@ -4,16 +4,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "processos_importacao")
 public class ProcessoImportacao {
 
     @Id
     private String id = UUID.randomUUID().toString();
     @Column(unique = true)
+    // private static final long idUsuario = idUsuario;
     private String numeroProcesso;
     private String identificadorInvoice;
     private String fornecedor;
@@ -21,6 +22,10 @@ public class ProcessoImportacao {
     private Double quantidade;
     private BigDecimal precoPorQuilo;
     private LocalDate dataEmbarque;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     public ProcessoImportacao() {
     }
@@ -31,6 +36,9 @@ public class ProcessoImportacao {
         this.fornecedor = fornecedor;
     }
 
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    
     public String getNumeroProcesso() {
         return numeroProcesso;
     }

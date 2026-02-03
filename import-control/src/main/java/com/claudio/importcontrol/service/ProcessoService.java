@@ -8,13 +8,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.claudio.importcontrol.dto.ProcessoDTO;
 import com.claudio.importcontrol.entity.ProcessoImportacao;
+import com.claudio.importcontrol.entity.Usuario;
 import com.claudio.importcontrol.repository.ProcessoRepository;
+import com.claudio.importcontrol.repository.UsuarioRepository;
 
 @Service
 public class ProcessoService {
 
     @Autowired
     private ProcessoRepository repository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public List<ProcessoImportacao> listar() {
         List<ProcessoImportacao> processos = repository.findAll();
@@ -25,12 +30,18 @@ public class ProcessoService {
         return processos;
     }
 
-    public ProcessoImportacao criar(ProcessoDTO dados) {
-        ProcessoImportacao novoProcesso = new ProcessoImportacao();
+  public ProcessoImportacao criar(ProcessoDTO dados) {
+        if (dados.usuarioId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário é obrigatório.");
+        }
+        
+        Usuario usuario = usuarioRepository.findById(dados.usuarioId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
 
         if (dados.numeroProcesso() == null || dados.identificadorInvoice() == null || dados.fornecedor() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campos obrigatórios faltando.");
         }
+
         if (repository.existsByNumeroProcesso(dados.numeroProcesso())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -38,6 +49,8 @@ public class ProcessoService {
             );
         }
 
+        ProcessoImportacao novoProcesso = new ProcessoImportacao();
+        novoProcesso.setUsuario(usuario); // VINCULA QUEM CADASTROU!
         novoProcesso.setNumeroProcesso(dados.numeroProcesso());
         novoProcesso.setIdentificadorInvoice(dados.identificadorInvoice());
         novoProcesso.setFornecedor(dados.fornecedor());
