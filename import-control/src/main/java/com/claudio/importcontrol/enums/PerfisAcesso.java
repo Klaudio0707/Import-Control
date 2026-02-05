@@ -1,6 +1,6 @@
         package com.claudio.importcontrol.enums;
 
-        public enum UserRole {
+        public enum PerfisAcesso{
             ADMIN,
             USER
         }

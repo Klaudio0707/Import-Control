@@ -4,7 +4,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+<<<<<<< HEAD
 import jakarta.persistence.*;
+=======
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+>>>>>>> 1979036 (feat(rastreio): implementa logica de eventos (entity, dto, service e repository))
 
 @Entity
 @Table(name = "processos_importacao")
@@ -12,6 +22,10 @@ public class ProcessoImportacao {
 
     @Id
     private String id = UUID.randomUUID().toString();
+<<<<<<< HEAD
+=======
+    @Column(unique = true)
+>>>>>>> 1979036 (feat(rastreio): implementa logica de eventos (entity, dto, service e repository))
     private String numeroProcesso;
     private String identificadorInvoice;
     private String fornecedor;
@@ -45,8 +59,8 @@ public class ProcessoImportacao {
         return numeroProcesso;
     }
 
-    public String getId() {
-        return id;
+    public String getIdProcesso() {
+        return this.id;
     }
 
     public String getIdentificadorInvoice() {
