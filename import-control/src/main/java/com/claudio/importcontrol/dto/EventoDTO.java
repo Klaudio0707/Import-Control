@@ -1,23 +1,18 @@
 package com.claudio.importcontrol.dto;
 
-
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
 
 public record EventoDTO(
 
-    @NotBlank(message = "O ID do processo é obrigatório")
+    @NotBlank(message = "ID do processo é obrigatório")
     String processoId, 
-
-    @NotBlank(message = "Descrição é obrigatória")
+    @NotBlank(message = "Descrição do evento é obrigatória")
     String descricao,
-
-    @NotBlank(message = "Localização é obrigatória")
+    @NotBlank(message = "A localização é obrigatória")
     String localizacao,
-    
-    @NotBlank(message = "Status é obrigatório")
+    @NotBlank(message = "O status é obrigatório")
     String status,
 
-    // sem o NotBLank se torna opcional
     String rastreioDocumento
 
 ){   }
