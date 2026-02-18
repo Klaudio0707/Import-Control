@@ -13,18 +13,18 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity htpp) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       http
       .csrf(csrf -> csrf.disable())
-      .authorizeHtppRequests(auth -< auth
-        .anyRequest().permitAll() 
+    .authorizeHttpRequests(auth -> auth
+        .anyRequest().permitAll()
       );
       return http.build();  
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return BCryptPasswordEncorder
+        return new BCryptPasswordEncoder();
     }
 
 }

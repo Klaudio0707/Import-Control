@@ -12,6 +12,8 @@ import com.claudio.importcontrol.entity.Usuario;
 import com.claudio.importcontrol.repository.ProcessoRepository;
 import com.claudio.importcontrol.repository.UsuarioRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ProcessoService {
 
@@ -26,40 +28,42 @@ public class ProcessoService {
         if (processos.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum processo encontrado.");
         }
-
         return processos;
     }
 
-  public ProcessoImportacao criar(ProcessoDTO dados) {
-        if (dados.usuarioId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do usuário é obrigatório.");
-        }
+    @Transactional 
+    public ProcessoImportacao salvar(ProcessoDTO dados) {
         
-        Usuario usuario = usuarioRepository.findById(dados.usuarioId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+    
+        ProcessoImportacao processo = new ProcessoImportacao();
+        
+        processo.setNumeroProcesso(dados.numeroProcesso());
+        processo.setIdentificadorInvoice(dados.identificadorInvoice());
+        processo.setFornecedor(dados.fornecedor());
+        processo.setProduto(dados.produto());
+        processo.setQuantidade(dados.quantidade());
+        processo.setPrecoPorQuilo(dados.precoPorQuilo());
+        processo.setUnidadeMedida(dados.unidadeMedida());
 
-        if (dados.numeroProcesso() == null || dados.identificadorInvoice() == null || dados.fornecedor() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campos obrigatórios faltando.");
+        // Datas e Prazos
+        processo.setPrevisaoEmbarque(dados.previsaoEmbarque());
+        processo.setDataEmbarque(dados.dataEmbarque());
+        processo.setDiasParaPagamento(dados.diasParaPagamento());
+
+        // Enums
+        processo.setStatusLogistico(dados.statusProcesso());
+        processo.setStatusFinanceiro(dados.statusPagamento());
+        processo.setFormaPagamento(dados.formaPagamento());
+        processo.setDI(dados.DI());
+
+        
+        if (dados.usuarioId() != null) {
+            Usuario usuario = usuarioRepository.findById(dados.usuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + dados.usuarioId()));
+            processo.setUsuario(usuario);
         }
 
-        if (repository.existsByNumeroProcesso(dados.numeroProcesso())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "DUPLICIDADE: O processo " + dados.numeroProcesso() + " já existe no sistema."
-            );
-        }
-
-        ProcessoImportacao novoProcesso = new ProcessoImportacao();
-        novoProcesso.setUsuario(usuario); // VINCULA QUEM CADASTROU!
-        novoProcesso.setNumeroProcesso(dados.numeroProcesso());
-        novoProcesso.setIdentificadorInvoice(dados.identificadorInvoice());
-        novoProcesso.setFornecedor(dados.fornecedor());
-        novoProcesso.setProduto(dados.produto());
-        novoProcesso.setQuantidade(dados.quantidade());
-        novoProcesso.setPrecoPorQuilo(dados.precoPorQuilo());
-        novoProcesso.setDataEmbarque(dados.dataEmbarque());
-
-        return repository.save(novoProcesso);
+        return repository.save(processo);
     }
 
     public ProcessoImportacao atualizar(String id, ProcessoDTO dados) {

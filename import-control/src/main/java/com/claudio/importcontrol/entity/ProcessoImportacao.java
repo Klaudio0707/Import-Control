@@ -1,11 +1,15 @@
 package com.claudio.importcontrol.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.UUID;
+import com.claudio.importcontrol.enums.FormaPagamento;
+import com.claudio.importcontrol.enums.StatusPagamento;
+import com.claudio.importcontrol.enums.StatusProcesso;
+import com.claudio.importcontrol.enums.UnidadeMedida;
 
 import jakarta.persistence.*;
-
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Entity
 @Table(name = "processos_importacao")
@@ -20,17 +24,43 @@ public class ProcessoImportacao {
     private String produto;
     private Double quantidade;
     private BigDecimal precoPorQuilo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unidade_medida", length = 10)
+    private UnidadeMedida unidadeMedida;
+
+    @Column(name = "valor_total")
+    private BigDecimal valorTotal;
+
     private LocalDate dataEmbarque;
     private LocalDate dataChegada;
     private LocalDate previsaoEmbarque;
-    private String DI;
+    private String DI; 
+
+    @Column(name = "dias_para_pagamento")
+    private Integer diasParaPagamento;
+
+    @Column(name = "data_vencimento")
+    private LocalDate dataVencimento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_logistico")
+    private StatusProcesso statusLogistico;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_financeiro")
+    private StatusPagamento statusFinanceiro;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "forma_pagamento")
+    private FormaPagamento formaPagamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    public ProcessoImportacao() {
-    }
+
+    public ProcessoImportacao() {}
 
     public ProcessoImportacao(String numeroProcesso, String invoice, String fornecedor) {
         this.numeroProcesso = numeroProcesso;
@@ -38,87 +68,97 @@ public class ProcessoImportacao {
         this.fornecedor = fornecedor;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+   @PrePersist
+    @PreUpdate
+    public void prepararDados() {
+        
+        if (this.statusLogistico == null) this.statusLogistico = StatusProcesso.CRIADO;
+        if (this.statusFinanceiro == null) this.statusFinanceiro = StatusPagamento.PENDENTE;
+
+        if (this.dataEmbarque != null && this.diasParaPagamento != null) {
+            this.dataVencimento = this.dataEmbarque.plusDays(this.diasParaPagamento);
+        }
+
+
+        if (this.quantidade != null && this.precoPorQuilo != null) {
+         
+            this.valorTotal = this.precoPorQuilo.multiply(BigDecimal.valueOf(this.quantidade));
+        }
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
 
-    public String getNumeroProcesso() {
-        return numeroProcesso;
-    }
+    @Transient
+    public String getStatusPrazo() {
+        if (this.dataVencimento == null) return "Aguardando Embarque/Prazo";
 
-    public String getIdProcesso() {
-        return this.id;
-    }
+        long dias = ChronoUnit.DAYS.between(LocalDate.now(), this.dataVencimento);
 
-    public String getIdentificadorInvoice() {
-        return identificadorInvoice;
+        if (dias > 0) {
+            return "Vence em " + dias + " dias";
+        } else if (dias < 0) {
+            return "ATRASADO há " + Math.abs(dias) + " dias";
+        } else {
+            return "Vence HOJE!";
+        }
     }
+    
 
-    public String getFornecedor() {
-        return fornecedor;
-    }
 
-    public String getProduto() {
-        return produto;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public Double getQuantidade() {
-        return quantidade;
-    }
+    public String getNumeroProcesso() { return numeroProcesso; }
+    public void setNumeroProcesso(String numeroProcesso) { this.numeroProcesso = numeroProcesso; }
 
-    public BigDecimal getPrecoPorQuilo() {
-        return precoPorQuilo;
-    }
+    public String getIdentificadorInvoice() { return identificadorInvoice; }
+    public void setIdentificadorInvoice(String identificadorInvoice) { this.identificadorInvoice = identificadorInvoice; }
 
-    public LocalDate getDataEmbarque() {
-        return dataEmbarque;
-    }
+    public String getFornecedor() { return fornecedor; }
+    public void setFornecedor(String fornecedor) { this.fornecedor = fornecedor; }
 
-    public void setProduto(String produto) {
-        this.produto = produto;
-    }
+    public String getProduto() { return produto; }
+    public void setProduto(String produto) { this.produto = produto; }
 
-    public void setQuantidade(Double quantidade) {
-        this.quantidade = quantidade;
-    }
+    public Double getQuantidade() { return quantidade; }
+    public void setQuantidade(Double quantidade) { this.quantidade = quantidade; }
 
-    public void setPrecoPorQuilo(BigDecimal precoPorQuilo) {
-        this.precoPorQuilo = precoPorQuilo;
-    }
+    public BigDecimal getPrecoPorQuilo() { return precoPorQuilo; }
+    public void setPrecoPorQuilo(BigDecimal precoPorQuilo) { this.precoPorQuilo = precoPorQuilo; }
 
-    public void setDataEmbarque(LocalDate data) {
-        this.dataEmbarque = data;
-    }
+    public LocalDate getDataEmbarque() { return dataEmbarque; }
+    public void setDataEmbarque(LocalDate dataEmbarque) { this.dataEmbarque = dataEmbarque; }
 
-    public void setNumeroProcesso(String numeroProcesso) {
-        this.numeroProcesso = numeroProcesso;
-    }
+    public LocalDate getDataChegada() { return dataChegada; }
+    public void setDataChegada(LocalDate dataChegada) { this.dataChegada = dataChegada; }
 
-    public void setIdentificadorInvoice(String identificadorInvoice) {
-        this.identificadorInvoice = identificadorInvoice;
-    }
+    public LocalDate getPrevisaoEmbarque() { return previsaoEmbarque; }
+    public void setPrevisaoEmbarque(LocalDate previsaoEmbarque) { this.previsaoEmbarque = previsaoEmbarque; }
 
-    public void setFornecedor(String fornecedorInvoice) {
-        this.fornecedor = fornecedorInvoice;
-    }
-    public LocalDate getPrevisaoEmbarque() {
-        return previsaoEmbarque;
-    }
-    public void setPrevisaoEmbarque(LocalDate previsaoEmbarque) {
-        this.previsaoEmbarque = previsaoEmbarque;
-    }
-    public LocalDate getDataChegada() {
-        return dataChegada;
-    }
-    public void setDataChegada(LocalDate dataChegada) {
-        this.dataChegada = dataChegada;
-    }
-    public String getDI() {
-        return DI;
-    }
+    public String getDI() { return DI; }
+    public void setDI(String DI) { this.DI = DI; }
+
+    public Integer getDiasParaPagamento() { return diasParaPagamento; }
+    public void setDiasParaPagamento(Integer diasParaPagamento) { this.diasParaPagamento = diasParaPagamento; }
+
+    public LocalDate getDataVencimento() { return dataVencimento; }
+  
+
+    public StatusProcesso getStatusLogistico() { return statusLogistico; }
+    public void setStatusLogistico(StatusProcesso statusLogistico) { this.statusLogistico = statusLogistico; }
+
+    public StatusPagamento getStatusFinanceiro() { return statusFinanceiro; }
+    public void setStatusFinanceiro(StatusPagamento statusFinanceiro) { this.statusFinanceiro = statusFinanceiro; }
+
+    public FormaPagamento getFormaPagamento() { return formaPagamento; }
+    public void setFormaPagamento(FormaPagamento formaPagamento) { this.formaPagamento = formaPagamento; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public UnidadeMedida getUnidadeMedida() { return unidadeMedida; }
+
+    public void setUnidadeMedida(UnidadeMedida unidadeMedida) { this.unidadeMedida = unidadeMedida; }
+    public BigDecimal getValorTotal() { return valorTotal; }
+ 
 
 }

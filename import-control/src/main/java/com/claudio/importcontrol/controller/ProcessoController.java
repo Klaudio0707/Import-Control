@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import com.claudio.importcontrol.dto.ProcessoDTO;
 import com.claudio.importcontrol.entity.ProcessoImportacao;
 import com.claudio.importcontrol.service.ProcessoService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/processos")
@@ -27,10 +28,13 @@ public class ProcessoController {
         return ResponseEntity.ok(service.listar());
     }
 
+   
     @PostMapping
-    public ResponseEntity<ProcessoImportacao> salvar(@RequestBody ProcessoDTO dados) {
-        ProcessoImportacao salvo = service.criar(dados);
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    public ResponseEntity<ProcessoImportacao> criar(@RequestBody @Valid ProcessoDTO dados) {
+   
+        ProcessoImportacao processoSalvo = service.salvar(dados);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(processoSalvo);
     }
 
     @GetMapping("/{id}")

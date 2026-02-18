@@ -9,11 +9,11 @@ import com.claudio.importcontrol.dto.EventoDTO;
 import com.claudio.importcontrol.entity.EventoRastreio;
 import com.claudio.importcontrol.service.EventoService;
 
-@RestController // infroamando que é um controller
-@RequestMapping("/eventos") // mapeando a rota para eventos
+@RestController 
+@RequestMapping("/eventos") 
 public class EventoController {
 
-    private final EventoService service; //injetando o serviço de evento
+    private final EventoService service; 
 
     public EventoController(@Autowired EventoService service) {
         this.service = service;
