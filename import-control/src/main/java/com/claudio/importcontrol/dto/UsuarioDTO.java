@@ -13,6 +13,9 @@ public record UsuarioDTO(
     String email,
     @NotBlank(message = "A senha é obrigatória")
     String senha,
+    @NotBlank(message = "O CNPJ é obrigatório")
+    String cnpj,
+
     @NotNull(message = "O perfil de acesso é obrigatório")
     PerfisAcesso acesso
 ) {}

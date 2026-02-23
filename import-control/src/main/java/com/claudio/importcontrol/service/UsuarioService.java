@@ -1,5 +1,6 @@
 package com.claudio.importcontrol.service;
 
+import com.claudio.importcontrol.entity.Empresa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,20 @@ public class UsuarioService {
     private UsuarioRepository repository;
 
     @Autowired
+    private EmpresaService empresaService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Usuario criar(UsuarioDTO dados) {
+
+        Empresa empresa = empresaService.salvarEmpresaPeloCnpj(dados.cnpj());
+
         Usuario usuario = new Usuario();
         usuario.setNome(dados.nome());
         usuario.setEmail(dados.email());
-        usuario.setSenha(dados.senha()); 
+        usuario.setEmpresa(empresa);
+        usuario.setSenha(dados.senha());
         usuario.setAcesso(dados.acesso());
 
        String senhaCriptografada = passwordEncoder.encode(dados.senha());
