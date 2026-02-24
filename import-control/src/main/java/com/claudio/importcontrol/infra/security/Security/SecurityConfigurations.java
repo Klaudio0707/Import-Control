@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-public class SecurityConfigurations {
+
     @Configuration
     @EnableWebSecurity
     public class SecurityConfigurations {
@@ -24,14 +24,26 @@ public class SecurityConfigurations {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            return http.csrf(csrf -> csrf.disable())
-                    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            return http
+                    .csrf(csrf -> csrf.disable()) // Desabilita proteção contra ataques de form (não necessário em API Rest)
+                    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão no servidor (Statefull)
                     .authorizeHttpRequests(req -> {
-                        req.requestMatchers(HttpMethod.POST, "/login").permitAll();
-                        req.requestMatchers(HttpMethod.POST, "/usuarios/cadastrar").permitAll();
-                        req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
-                        req.anyRequest().authenticated(); // Bloqueia todo o resto
+                        // 🔓 LIBERA LOGIN (Qualquer coisa que comece com /auth/)
+
+                        req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+                        req.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+
+                        // 🔓 LIBERA CADASTRO (Qualquer POST em /usuarios e sub-rotas)
+                        // Isso cobre: /usuarios, /usuarios/, /usuarios/cadastrar
+                        req.requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll();
+
+                        // 🔓 LIBERA SWAGGER (Documentação)
+                        req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+                        req.requestMatchers("/error").permitAll();
+                        // 🔒 BLOQUEIA O RESTO
+                        req.anyRequest().authenticated();
                     })
+                    // Adiciona nosso filtro antes do filtro padrão do Spring
                     .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
@@ -46,4 +58,4 @@ public class SecurityConfigurations {
             return new BCryptPasswordEncoder();
         }
     }
-}
+
