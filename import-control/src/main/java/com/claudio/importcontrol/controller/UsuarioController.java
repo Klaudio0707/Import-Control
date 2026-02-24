@@ -1,7 +1,10 @@
 package com.claudio.importcontrol.controller;
 
+import com.claudio.importcontrol.dto.UsuarioResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.claudio.importcontrol.dto.UsuarioDTO;
@@ -17,18 +20,20 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     @ResponseStatus(HttpStatus.CREATED)
-    public Usuario criar(@RequestBody UsuarioDTO dados) {
-        return service.criar(dados);
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioDTO dados) {
+
+        Usuario usuarioSalvo = service.criar(dados);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(usuarioSalvo));
     }
-     @GetMapping("/{id}")
+        @GetMapping("/{id}")
     public Usuario buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
-
-    @GetMapping
-    public List<Usuario> listar() {
-        return service.listar();
+    @GetMapping("/lista")
+    public ResponseEntity<List<UsuarioResponseDTO>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 }

@@ -3,6 +3,7 @@ package com.claudio.importcontrol.controller;
 
 
 import com.claudio.importcontrol.dto.LoginDTO;
+import com.claudio.importcontrol.dto.TokenResponseDTO;
 import com.claudio.importcontrol.entity.Usuario;
 import com.claudio.importcontrol.repository.UsuarioRepository;
 import com.claudio.importcontrol.service.TokenService;
@@ -31,8 +32,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO dados) {
-        
-
         Optional<Usuario> usuarioOptional = repository.findByEmail(dados.email());
 
         if (usuarioOptional.isPresent()) {
@@ -41,7 +40,7 @@ public class AuthController {
             if (passwordEncoder.matches(dados.senha(), usuario.getSenha())) {
                 
                 String token = tokenService.gerarToken(usuario);
-                return ResponseEntity.ok().body(token);
+                return ResponseEntity.ok(new TokenResponseDTO(token));
             }
         }
 

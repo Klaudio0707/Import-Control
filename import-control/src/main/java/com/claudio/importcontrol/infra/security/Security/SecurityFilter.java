@@ -1,8 +1,6 @@
 package com.claudio.importcontrol.infra.security.Security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import com.claudio.importcontrol.repository.UsuarioRepository;
 import com.claudio.importcontrol.service.TokenService;
 import jakarta.servlet.FilterChain;
@@ -30,12 +28,28 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var tokenJWT = recuperarToken(request);
 
+        // RASTREADOR 1
+        System.out.println("1. Token chegando no Filtro: " + tokenJWT);
+
         if (tokenJWT != null) {
             var subject = tokenService.getSubject(tokenJWT);
-            var usuario = repository.findByEmail(subject);
 
-            var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // RASTREADOR 2
+            System.out.println("2. Email extraído do Token: " + subject);
+
+            var usuarioOptional = repository.findByEmail(subject);
+
+            // RASTREADOR 3
+            System.out.println("3. Achou o usuário no banco? " + usuarioOptional.isPresent());
+
+            if (usuarioOptional.isPresent()) {
+                var usuario = usuarioOptional.get();
+                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // RASTREADOR 4
+                System.out.println("4. Autenticação injetada com sucesso no Contexto!");
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -44,20 +58,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     private String recuperarToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null) {
-            return authorizationHeader.replace("Bearer ", "");
+            return authorizationHeader.replace("Bearer ", "").trim();
         }
         return null;
-    }
-    public String getSubject(String tokenJWT) {
-        try {
-            var algoritmo = Algorithm.HMAC256(secret);
-            return JWT.require(algoritmo)
-                    .withIssuer("import-control-api")
-                    .build()
-                    .verify(tokenJWT)
-                    .getSubject();
-        } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Token JWT inválido ou expirado!");
-        }
     }
 }

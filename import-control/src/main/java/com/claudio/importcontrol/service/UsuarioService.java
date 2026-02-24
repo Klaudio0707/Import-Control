@@ -1,5 +1,6 @@
 package com.claudio.importcontrol.service;
 
+import com.claudio.importcontrol.dto.UsuarioResponseDTO;
 import com.claudio.importcontrol.entity.Empresa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,20 +29,18 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     public Usuario criar(UsuarioDTO dados) {
-
+        // 1. Busca ou cria a empresa
         Empresa empresa = empresaService.salvarEmpresaPeloCnpj(dados.cnpj());
 
+        // 2. Cria o usuário de forma limpa, sem duplicações
         Usuario usuario = new Usuario();
         usuario.setNome(dados.nome());
         usuario.setEmail(dados.email());
         usuario.setEmpresa(empresa);
-        usuario.setSenha(dados.senha());
         usuario.setAcesso(dados.acesso());
 
-       String senhaCriptografada = passwordEncoder.encode(dados.senha());
-        usuario.setSenha(senhaCriptografada);
-        
-        usuario.setAcesso(dados.acesso());
+        // Criptografa e seta a senha apenas UMA vez
+        usuario.setSenha(passwordEncoder.encode(dados.senha()));
 
         try {
             return repository.save(usuario);
@@ -49,13 +48,18 @@ public class UsuarioService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "O e-mail " + dados.email() + " já está cadastrado.");
         }
     }
-     public Usuario buscarPorId(Long id) {
-        return repository.findById(id).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com ID " + id + " não encontrado.")
+
+    public Usuario buscarPorId(Long id) {
+        return repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com ID " + id + " não encontrado.")
         );
     }
 
-    public List<Usuario> listar() {
-        return repository.findAll();
+    // AQUI ESTÁ A MÁGICA: Uso de Streams e Lambdas exigido pelo Tech Lead!
+    // Ele vai no banco, pega as Entidades, converte cada uma para DTO e devolve a lista segura.
+    public List<UsuarioResponseDTO> listar() {
+        return repository.findAll().stream()
+                .map(UsuarioResponseDTO::new)
+                .toList(); // .toList() é nativo do Java 16+
     }
 }

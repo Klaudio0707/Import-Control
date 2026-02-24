@@ -12,15 +12,11 @@ public class App {
 
     String port = dotenv.get("PORT");
 
-    if (port == null) {
-        System.out.println("ERRO: O .env não foi lido ou a variável PORT não existe nele.");
-    } else {
-        System.out.println("SUCESSO: .env carregado! URL: https://localhost:" + port);
-    }
-    dotenv.entries().forEach(entry -> {
-        System.setProperty(entry.getKey(), entry.getValue());
-    });
+        dotenv.entries().forEach(entry -> {
+            System.setProperty(entry.getKey(), entry.getValue());
+        });
 
-    SpringApplication.run(App.class, args);
+        // 3. Inicia o Spring Boot
+        SpringApplication.run(App.class, args);
 }
 }

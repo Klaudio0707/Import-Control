@@ -159,6 +159,8 @@ public class ProcessoImportacao {
 
     public void setUnidadeMedida(UnidadeMedida unidadeMedida) { this.unidadeMedida = unidadeMedida; }
     public BigDecimal getValorTotal() { return valorTotal; }
+
+
  
 
 }
