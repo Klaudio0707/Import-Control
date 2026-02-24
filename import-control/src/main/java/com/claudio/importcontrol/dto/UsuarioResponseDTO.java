@@ -1,21 +1,24 @@
 package com.claudio.importcontrol.dto;
+
+import com.claudio.importcontrol.entity.Usuario;
 import com.claudio.importcontrol.enums.PerfisAcesso;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-
-public record UsuarioDTO(
-
-    @NotBlank(message = "O nome é obrigatório")
-    String nome,
-    @NotBlank(message = "O email é obrigatório")
-    String email,
-    @NotBlank(message = "A senha é obrigatória")
-    String senha,
-    @NotBlank(message = "O CNPJ é obrigatório")
-    String cnpj,
-
-    @NotNull(message = "O perfil de acesso é obrigatório")
-    PerfisAcesso acesso
-) {}
+public record UsuarioResponseDTO(
+        Long id,
+        String nome,
+        String email,
+        PerfisAcesso acesso,
+        String razaoSocialEmpresa,
+        String cnpjEmpresa
+) {
+    public UsuarioResponseDTO(Usuario usuario) {
+        this(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getAcesso(),
+                usuario.getEmpresa() != null ? usuario.getEmpresa().getRazaoSocial() : "Empresa não vinculada",
+                usuario.getEmpresa() != null ? usuario.getEmpresa().getCnpj() : "N/A"
+        );
+    }
+}
