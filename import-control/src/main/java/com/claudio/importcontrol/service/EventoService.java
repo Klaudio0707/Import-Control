@@ -1,8 +1,8 @@
 package com.claudio.importcontrol.service;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.claudio.importcontrol.dto.EventoResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
@@ -16,27 +16,44 @@ import com.claudio.importcontrol.repository.ProcessoRepository;
 @Service 
 public class EventoService {
 
-    @Autowired
-    private EventoRepository repository; 
 
-    @Autowired
-    private ProcessoRepository processoRepository; 
+    private final EventoRepository eventoRepository;
 
-    public EventoRastreio registrar(EventoDTO dados) {
-       
-        ProcessoImportacao processoAtual = processoRepository.findById(dados.processoId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado com ID: " + dados.processoId()));
+
+    private final ProcessoRepository processoRepository;
+
+    public EventoService(EventoRepository eventoRepository,ProcessoRepository processoRepository ){
+        this.eventoRepository = eventoRepository;
+        this.processoRepository = processoRepository;
+    }
+    public void registrarManual(EventoDTO dados) {
+        registrarInterno(dados.processoId(), dados.descricao(), dados.localizacao(), dados.status(), dados.rastreioDocumento());
+    }
+    public void registrarAutomatico(String processoId, String statusNovo, String descricao) {
+        registrarInterno(processoId, descricao, "Sistema ImportControl", statusNovo, null);
+    }
+
+    private void registrarInterno(String processoId, String descricao, String localizacao, String status, String doc) {
+        ProcessoImportacao processo = processoRepository.findById(processoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado. ID: " + processoId));
 
         EventoRastreio evento = new EventoRastreio();
-        evento.setDescricao(dados.descricao());
-        evento.setLocalizacao(dados.localizacao());
-        evento.setStatus(dados.status());
-        evento.setRastreioDocumento(dados.rastreioDocumento()); 
-    
-        evento.setDataEvento(LocalDateTime.now());
+        evento.setProcesso(processo);
+        evento.setDescricao(descricao);
+        evento.setLocalizacao(localizacao != null ? localizacao : "N/A");
+        evento.setStatus(status);
+        evento.setRastreioDocumento(doc);
 
-        evento.setProcesso(processoAtual); 
 
-        return repository.save(evento);
+        eventoRepository.save(evento);
+    }
+
+
+
+    public List<EventoResponseDTO> listarHistoricoDoProcesso(String processoId) {
+        return eventoRepository.findByProcessoIdOrderByDataEventoDesc(processoId)
+                .stream()
+                .map(EventoResponseDTO::new)
+                .toList();
     }
 }
