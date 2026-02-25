@@ -16,7 +16,6 @@ public class App {
             System.setProperty(entry.getKey(), entry.getValue());
         });
 
-        // 3. Inicia o Spring Boot
         SpringApplication.run(App.class, args);
 }
 }

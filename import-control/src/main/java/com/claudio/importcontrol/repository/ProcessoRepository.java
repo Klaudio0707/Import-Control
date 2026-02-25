@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.claudio.importcontrol.entity.ProcessoImportacao;
+import java.util.Optional;
 
 @Repository
 public interface ProcessoRepository extends JpaRepository<ProcessoImportacao, String> {
@@ -16,7 +17,8 @@ public interface ProcessoRepository extends JpaRepository<ProcessoImportacao, St
 
     List<ProcessoImportacao> findByFornecedorContainingIgnoreCase(String fornecedor);
 
+
     @Query("SELECT p FROM ProcessoImportacao p WHERE p.quantidade >= :qtd")
-    List<ProcessoImportacao> buscarAcimaDe(@Param("qtd") Integer qtd);
+    List<ProcessoImportacao> buscarAcimaDe(@Param("qtd") Double qtd);
 
 }

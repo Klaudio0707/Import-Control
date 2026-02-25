@@ -6,7 +6,7 @@ import com.claudio.importcontrol.entity.EventoRastreio;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EventoRepository extends JpaRepository<EventoRastreio, Long> {  
-    List<EventoRastreio> findByProcessoId(String processoId);
+public interface EventoRepository extends JpaRepository<EventoRastreio, Long> {
+    List<EventoRastreio> findByProcessoIdOrderByDataEventoDesc(String processoId);
     
 }

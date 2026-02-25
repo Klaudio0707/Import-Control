@@ -29,17 +29,15 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     public Usuario criar(UsuarioDTO dados) {
-        // 1. Busca ou cria a empresa
         Empresa empresa = empresaService.salvarEmpresaPeloCnpj(dados.cnpj());
 
-        // 2. Cria o usuário de forma limpa, sem duplicações
         Usuario usuario = new Usuario();
         usuario.setNome(dados.nome());
         usuario.setEmail(dados.email());
         usuario.setEmpresa(empresa);
         usuario.setAcesso(dados.acesso());
 
-        // Criptografa e seta a senha apenas UMA vez
+        // Criptografia
         usuario.setSenha(passwordEncoder.encode(dados.senha()));
 
         try {
@@ -55,11 +53,9 @@ public class UsuarioService {
         );
     }
 
-    // AQUI ESTÁ A MÁGICA: Uso de Streams e Lambdas exigido pelo Tech Lead!
-    // Ele vai no banco, pega as Entidades, converte cada uma para DTO e devolve a lista segura.
     public List<UsuarioResponseDTO> listar() {
         return repository.findAll().stream()
                 .map(UsuarioResponseDTO::new)
-                .toList(); // .toList() é nativo do Java 16+
+                .toList();
     }
 }

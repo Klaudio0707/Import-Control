@@ -29,7 +29,6 @@ public class OpenApiConfig {
                         .description("Sistema de Controle de Importações e Rastreio de Cargas")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
 
-                // A MÁGICA AQUI: Obriga o Swagger a usar a chave 'bearer-key' em todas as rotas
                 .addSecurityItem(new SecurityRequirement().addList("bearer-key"));
     }
 }

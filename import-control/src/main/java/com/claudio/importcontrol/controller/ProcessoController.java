@@ -60,7 +60,7 @@ public class ProcessoController {
     }
 
     @GetMapping("/quantidade/{qtd}")
-    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorQuantidade(@PathVariable Integer qtd) {
+    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorQuantidade(@PathVariable Double qtd) {
         List<ProcessoResponseDTO> lista = service.buscarMaioresQue(qtd).stream()
                 .map(ProcessoResponseDTO::new)
                 .toList();

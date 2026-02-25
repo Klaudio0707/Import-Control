@@ -27,6 +27,13 @@ public class EventoRastreio {
 
 public Long getId() { return id; }
 
+    @PrePersist
+    public void prePersist() {
+        if (this.dataEvento == null) {
+            this.dataEvento = LocalDateTime.now();
+        }
+    }
+
     public LocalDateTime getDataEvento() { return dataEvento; }
     public void setDataEvento(LocalDateTime dataEvento) { this.dataEvento = dataEvento; }
 

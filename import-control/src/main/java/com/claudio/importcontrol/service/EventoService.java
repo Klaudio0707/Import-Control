@@ -16,9 +16,7 @@ import com.claudio.importcontrol.repository.ProcessoRepository;
 @Service 
 public class EventoService {
 
-
     private final EventoRepository eventoRepository;
-
 
     private final ProcessoRepository processoRepository;
 
@@ -43,7 +41,6 @@ public class EventoService {
         evento.setLocalizacao(localizacao != null ? localizacao : "N/A");
         evento.setStatus(status);
         evento.setRastreioDocumento(doc);
-
 
         eventoRepository.save(evento);
     }

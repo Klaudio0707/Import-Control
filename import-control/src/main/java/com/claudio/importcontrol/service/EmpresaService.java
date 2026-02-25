@@ -2,39 +2,43 @@ package com.claudio.importcontrol.service;
 
 import com.claudio.importcontrol.entity.Empresa;
 import com.claudio.importcontrol.repository.EmpresaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class EmpresaService {
 
-    @Autowired
-    private EmpresaRepository empresaRepository;
+    private final EmpresaRepository empresaRepository;
+    private final CnpjService cnpjService;
 
-    @Autowired
-    private CnpjService cnpjService;
+    public EmpresaService(EmpresaRepository empresaRepository, CnpjService cnpjService) {
+        this.empresaRepository = empresaRepository;
+        this.cnpjService = cnpjService;
+    }
 
-    @Transactional // Garante que se algo falhar, nada será salvo no banco
+    @Transactional
     public Empresa salvarEmpresaPeloCnpj(String cnpjDigitado) {
-        var dados = cnpjService.consultarCnpj(cnpjDigitado);
+        String cnpjLimpo = cnpjDigitado.replaceAll("\\D", "");
 
-        boolean isAtiva = "ATIVA".equalsIgnoreCase(dados.situacaoCadastral());
+        return empresaRepository.findByCnpj(cnpjLimpo)
+                .orElseGet(() -> {
+                    System.out.println("CNPJ não encontrado localmente. Consultando BrasilAPI...");
+                    var dados = cnpjService.consultarCnpj(cnpjLimpo);
+                    boolean isAtiva = "ATIVA".equalsIgnoreCase(dados.situacaoCadastral());
+                    if (!isAtiva) {
+                        throw new RuntimeException("Bloqueio de Cadastro: Empresa possui situação: " + dados.situacaoCadastral());
+                    }
 
-        if (!isAtiva) {
-            throw new RuntimeException("Bloqueio de Cadastro: Empresa possui situação: " + dados.situacaoCadastral());
-        }
+                    Empresa novaEmpresa = new Empresa();
+                    novaEmpresa.setCnpj(cnpjLimpo);
+                    novaEmpresa.setRazaoSocial(dados.razaoSocial());
+                    novaEmpresa.setNomeFantasia(dados.nomeFantasia());
+                    novaEmpresa.setMunicipio(dados.municipio());
+                    novaEmpresa.setUf(dados.uf());
+                    novaEmpresa.setActive(true);
 
-
-        Empresa empresa = new Empresa();
-        empresa.setCnpj(cnpjDigitado.replaceAll("\\D", ""));
-        empresa.setRazaoSocial(dados.razaoSocial());
-        empresa.setNomeFantasia(dados.nomeFantasia());
-        empresa.setMunicipio(dados.municipio());
-        empresa.setUf(dados.uf());
-        empresa.setActive(true);
-
-        // 4. Persistência
-        return empresaRepository.save(empresa);
+                    return empresaRepository.save(novaEmpresa);
+                });
     }
 }

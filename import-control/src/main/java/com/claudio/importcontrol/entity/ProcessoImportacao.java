@@ -1,6 +1,6 @@
 package com.claudio.importcontrol.entity;
 
-import com.claudio.importcontrol.enums.FormaPagamento;
+
 import com.claudio.importcontrol.enums.StatusPagamento;
 import com.claudio.importcontrol.enums.StatusProcesso;
 import com.claudio.importcontrol.enums.UnidadeMedida;

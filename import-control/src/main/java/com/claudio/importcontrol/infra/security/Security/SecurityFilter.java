@@ -28,18 +28,15 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var tokenJWT = recuperarToken(request);
 
-        // RASTREADOR 1
         System.out.println("1. Token chegando no Filtro: " + tokenJWT);
 
         if (tokenJWT != null) {
             var subject = tokenService.getSubject(tokenJWT);
 
-            // RASTREADOR 2
             System.out.println("2. Email extraído do Token: " + subject);
 
             var usuarioOptional = repository.findByEmail(subject);
 
-            // RASTREADOR 3
             System.out.println("3. Achou o usuário no banco? " + usuarioOptional.isPresent());
 
             if (usuarioOptional.isPresent()) {
@@ -47,7 +44,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                 var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                // RASTREADOR 4
                 System.out.println("4. Autenticação injetada com sucesso no Contexto!");
             }
         }

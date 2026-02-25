@@ -4,7 +4,7 @@ import com.claudio.importcontrol.entity.ProcessoImportacao;
 import java.math.BigDecimal;
 
 public record ProcessoResponseDTO(
-        String id, // Seu ID é um UUID (String)
+        String id, // UUID (String)
         String numeroProcesso,
         String fornecedor,
         String produto,

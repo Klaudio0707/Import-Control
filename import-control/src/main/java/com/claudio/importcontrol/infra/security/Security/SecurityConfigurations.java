@@ -28,22 +28,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
                     .csrf(csrf -> csrf.disable()) // Desabilita proteção contra ataques de form (não necessário em API Rest)
                     .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão no servidor (Statefull)
                     .authorizeHttpRequests(req -> {
-                        // 🔓 LIBERA LOGIN (Qualquer coisa que comece com /auth/)
 
                         req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                         req.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
 
-                        // 🔓 LIBERA CADASTRO (Qualquer POST em /usuarios e sub-rotas)
-                        // Isso cobre: /usuarios, /usuarios/, /usuarios/cadastrar
                         req.requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll();
 
-                        // 🔓 LIBERA SWAGGER (Documentação)
                         req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
                         req.requestMatchers("/error").permitAll();
-                        // 🔒 BLOQUEIA O RESTO
+                        // BLOQUEIO
                         req.anyRequest().authenticated();
                     })
-                    // Adiciona nosso filtro antes do filtro padrão do Spring
+
                     .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                     .build();
         }

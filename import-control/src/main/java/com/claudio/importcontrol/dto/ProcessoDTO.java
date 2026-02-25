@@ -3,7 +3,6 @@ package com.claudio.importcontrol.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import com.claudio.importcontrol.enums.FormaPagamento;
 import com.claudio.importcontrol.enums.StatusPagamento;
 import com.claudio.importcontrol.enums.StatusProcesso;
 import com.claudio.importcontrol.enums.UnidadeMedida;

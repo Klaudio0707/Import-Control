@@ -36,9 +36,7 @@ public class AuthController {
 
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
-
             if (passwordEncoder.matches(dados.senha(), usuario.getSenha())) {
-                
                 String token = tokenService.gerarToken(usuario);
                 return ResponseEntity.ok(new TokenResponseDTO(token));
             }
