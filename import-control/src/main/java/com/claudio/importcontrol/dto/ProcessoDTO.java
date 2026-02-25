@@ -43,10 +43,10 @@ public record ProcessoDTO(
     StatusProcesso statusProcesso, 
 
     @NotNull(message = "Status do pagamento é obrigatório")
-    StatusPagamento statusPagamento, 
+    StatusPagamento statusPagamento,
 
-    @NotNull(message = "Forma de pagamento é obrigatória")
-    FormaPagamento formaPagamento,
+     @NotNull(message = "A condição de pagamento é obrigatória")
+     Long condicaoPagamentoId,
     
     Integer diasParaPagamento, 
 

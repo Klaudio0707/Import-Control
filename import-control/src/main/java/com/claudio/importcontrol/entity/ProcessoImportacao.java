@@ -51,9 +51,9 @@ public class ProcessoImportacao {
     @Column(name = "status_financeiro")
     private StatusPagamento statusFinanceiro;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "forma_pagamento")
-    private FormaPagamento formaPagamento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "condicao_pagamento_id")
+    private CondicaoPagamento condicaoPagamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
@@ -68,20 +68,18 @@ public class ProcessoImportacao {
         this.fornecedor = fornecedor;
     }
 
-   @PrePersist
+    @PrePersist
     @PreUpdate
     public void prepararDados() {
-        
         if (this.statusLogistico == null) this.statusLogistico = StatusProcesso.CRIADO;
         if (this.statusFinanceiro == null) this.statusFinanceiro = StatusPagamento.PENDENTE;
 
-        if (this.dataEmbarque != null && this.diasParaPagamento != null) {
-            this.dataVencimento = this.dataEmbarque.plusDays(this.diasParaPagamento);
+        if (this.dataEmbarque != null && this.condicaoPagamento != null) {
+            int dias = this.condicaoPagamento.getDiasPrazo();
+            this.dataVencimento = this.dataEmbarque.plusDays(dias);
         }
 
-
         if (this.quantidade != null && this.precoPorQuilo != null) {
-         
             this.valorTotal = this.precoPorQuilo.multiply(BigDecimal.valueOf(this.quantidade));
         }
     }
@@ -98,7 +96,7 @@ public class ProcessoImportacao {
         } else if (dias < 0) {
             return "ATRASADO há " + Math.abs(dias) + " dias";
         } else {
-            return "Vence HOJE!";
+            return "Vence HOJE!"+ LocalDate.now();
         }
     }
     
@@ -149,8 +147,8 @@ public class ProcessoImportacao {
     public StatusPagamento getStatusFinanceiro() { return statusFinanceiro; }
     public void setStatusFinanceiro(StatusPagamento statusFinanceiro) { this.statusFinanceiro = statusFinanceiro; }
 
-    public FormaPagamento getFormaPagamento() { return formaPagamento; }
-    public void setFormaPagamento(FormaPagamento formaPagamento) { this.formaPagamento = formaPagamento; }
+//    public FormaPagamento getFormaPagamento() { return formaPagamento; }
+//    public void setFormaPagamento(FormaPagamento formaPagamento) { this.formaPagamento = formaPagamento; }
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
@@ -160,7 +158,7 @@ public class ProcessoImportacao {
     public void setUnidadeMedida(UnidadeMedida unidadeMedida) { this.unidadeMedida = unidadeMedida; }
     public BigDecimal getValorTotal() { return valorTotal; }
 
-
- 
-
+    public void setCondicaoPagamento(CondicaoPagamento condicaoPagamento) {
+        this.condicaoPagamento = condicaoPagamento;
+    }
 }
