@@ -35,8 +35,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         var tokenJWT = recuperarToken(request);
 
-        System.out.println("DEBUG: Requisição recebida em: " + request.getRequestURI());
-
         try {
             if (tokenJWT != null) {
                 var subject = tokenService.getSubject(tokenJWT);
