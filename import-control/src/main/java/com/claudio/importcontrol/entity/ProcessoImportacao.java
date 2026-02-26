@@ -119,13 +119,10 @@ public class ProcessoImportacao {
 
     public Double getQuantidade() { return quantidade; }
     public void setQuantidade(Double quantidade) { this.quantidade = quantidade; }
-
     public BigDecimal getPrecoPorQuilo() { return precoPorQuilo; }
     public void setPrecoPorQuilo(BigDecimal precoPorQuilo) { this.precoPorQuilo = precoPorQuilo; }
-
     public LocalDate getDataEmbarque() { return dataEmbarque; }
     public void setDataEmbarque(LocalDate dataEmbarque) { this.dataEmbarque = dataEmbarque; }
-
     public LocalDate getDataChegada() { return dataChegada; }
     public void setDataChegada(LocalDate dataChegada) { this.dataChegada = dataChegada; }
 
@@ -135,20 +132,13 @@ public class ProcessoImportacao {
     public String getDI() { return DI; }
     public void setDI(String DI) { this.DI = DI; }
 
-    public Integer getDiasParaPagamento() { return diasParaPagamento; }
-    public void setDiasParaPagamento(Integer diasParaPagamento) { this.diasParaPagamento = diasParaPagamento; }
-
     public LocalDate getDataVencimento() { return dataVencimento; }
-  
 
     public StatusProcesso getStatusLogistico() { return statusLogistico; }
     public void setStatusLogistico(StatusProcesso statusLogistico) { this.statusLogistico = statusLogistico; }
 
     public StatusPagamento getStatusFinanceiro() { return statusFinanceiro; }
     public void setStatusFinanceiro(StatusPagamento statusFinanceiro) { this.statusFinanceiro = statusFinanceiro; }
-
-//    public FormaPagamento getFormaPagamento() { return formaPagamento; }
-//    public void setFormaPagamento(FormaPagamento formaPagamento) { this.formaPagamento = formaPagamento; }
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
