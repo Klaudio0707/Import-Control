@@ -29,8 +29,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
                     .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão no servidor (Statefull)
                     .authorizeHttpRequests(req -> {
 
-                        req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-                        req.requestMatchers(HttpMethod.POST, "/auth/**").permitAll();
+                        req.requestMatchers(HttpMethod.POST, "/login").permitAll();
+                        req.requestMatchers(HttpMethod.POST, "/login/**").permitAll();
 
                         req.requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll();
 
