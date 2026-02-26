@@ -1,7 +1,6 @@
 package com.claudio.importcontrol.controller;
 
 import com.claudio.importcontrol.entity.CondicaoPagamento;
-import com.claudio.importcontrol.repository.CondicaoPagamentoRepository;
 import com.claudio.importcontrol.service.CondicaoPagamentoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

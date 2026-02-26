@@ -3,7 +3,6 @@ package com.claudio.importcontrol.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Entity
 @Table(name = "condicoes_pagamento")
