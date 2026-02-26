@@ -24,27 +24,41 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private UsuarioRepository repository;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var tokenJWT = recuperarToken(request);
 
-        System.out.println("Filtro chamado para: " + request.getRequestURI());
+        // Esse log vai nos dizer exatamente o que o Render está recebendo
+        System.out.println("DEBUG: Requisição recebida em: " + request.getRequestURI());
 
-        if (tokenJWT != null) {
-            var subject = tokenService.getSubject(tokenJWT);
-            var usuario = repository.findByEmail(subject).get();
-            var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (tokenJWT != null) {
+                var subject = tokenService.getSubject(tokenJWT);
+                var usuarioOptional = repository.findByEmail(subject);
+
+                if (usuarioOptional.isPresent()) {
+                    var usuario = usuarioOptional.get();
+                    var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            // Se der erro 500, saberemos EXATAMENTE o motivo no log do Render
+            System.err.println("ERRO NO FILTRO: " + e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Erro interno no filtro de seguranca: " + e.getMessage());
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String recuperarToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null) {
-            return authorizationHeader.replace("Bearer ", "").trim();
+        System.out.println("DEBUG - Header Authorization: " + authorizationHeader);
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
         }
-        return null;
+        return authorizationHeader.replace("Bearer ", "").trim();
     }
 }
