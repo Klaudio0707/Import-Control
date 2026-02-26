@@ -27,9 +27,14 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        if (uri.equals("/error") || uri.equals("/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         var tokenJWT = recuperarToken(request);
 
-        // Esse log vai nos dizer exatamente o que o Render está recebendo
         System.out.println("DEBUG: Requisição recebida em: " + request.getRequestURI());
 
         try {
@@ -45,7 +50,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            // Se der erro 500, saberemos EXATAMENTE o motivo no log do Render
             System.err.println("ERRO NO FILTRO: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Erro interno no filtro de seguranca: " + e.getMessage());
