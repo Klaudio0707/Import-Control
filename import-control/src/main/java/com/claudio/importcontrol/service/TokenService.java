@@ -18,29 +18,36 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
+    private static final String ISSUER = "import-control-api";
+
     public String gerarToken(Usuario usuario) {
         try {
+
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            
+
             return JWT.create()
-                    .withIssuer("import-control-api")
-                    .withSubject(usuario.getEmail())  
+                    .withIssuer(ISSUER)
+                    .withSubject(usuario.getEmail())
                     .withExpiresAt(gerarDataExpiracao())
                     .sign(algorithm);
-            
+
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Erro ao gerar token JWT", exception);
         }
     }
     public String getSubject(String tokenJWT) {
+        if (tokenJWT == null || tokenJWT.isEmpty()) {
+            return null;
+        }
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer("import-control-api")
+                    .withIssuer(ISSUER)
                     .build()
                     .verify(tokenJWT)
                     .getSubject();
         } catch (JWTVerificationException exception) {
+            System.out.println("Erro na verificação do Token: " + exception.getMessage());
             throw new RuntimeException("Token JWT inválido ou expirado!");
         }
     }
