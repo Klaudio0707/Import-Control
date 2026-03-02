@@ -62,7 +62,7 @@ public class ProcessoService {
         processo.setFornecedor(dados.fornecedor());
         processo.setProduto(dados.produto());
         processo.setQuantidade(dados.quantidade());
-        processo.setPrecoPorQuilo(dados.precoPorQuilo());
+        processo.setPreco(dados.preco());
         processo.setUnidadeMedida(dados.unidadeMedida());
 
         // Datas
@@ -113,7 +113,7 @@ public class ProcessoService {
         processo.setProduto(dados.produto());
         processo.setQuantidade(dados.quantidade());
         processo.setUnidadeMedida(dados.unidadeMedida());
-        processo.setPrecoPorQuilo(dados.precoPorQuilo());
+        processo.setPreco(dados.preco());
         processo.setPrevisaoEmbarque(dados.previsaoEmbarque());
         processo.setDataEmbarque(dados.dataEmbarque());
         processo.setDataChegada(dados.dataChegada());

@@ -28,7 +28,7 @@ public record ProcessoDTO(
     UnidadeMedida unidadeMedida,
     @NotNull(message = "Preço por quilo é obrigatório")
     @Positive(message = "Preço deve ser maior que zero")
-    BigDecimal precoPorQuilo,
+    BigDecimal preco,
     @NotNull(message = "Previsão de embarque é obrigatória")
     LocalDate previsaoEmbarque,
     

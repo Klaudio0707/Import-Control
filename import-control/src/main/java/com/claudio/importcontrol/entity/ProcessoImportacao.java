@@ -23,7 +23,7 @@ public class ProcessoImportacao {
     private String fornecedor;
     private String produto;
     private Double quantidade;
-    private BigDecimal precoPorQuilo;
+    private BigDecimal preco;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "unidade_medida", length = 10)
@@ -79,8 +79,8 @@ public class ProcessoImportacao {
             this.dataVencimento = this.dataEmbarque.plusDays(dias);
         }
 
-        if (this.quantidade != null && this.precoPorQuilo != null) {
-            this.valorTotal = this.precoPorQuilo.multiply(BigDecimal.valueOf(this.quantidade));
+        if (this.quantidade != null && this.preco != null) {
+            this.valorTotal = this.preco.multiply(BigDecimal.valueOf(this.quantidade));
         }
     }
 
@@ -119,8 +119,8 @@ public class ProcessoImportacao {
 
     public Double getQuantidade() { return quantidade; }
     public void setQuantidade(Double quantidade) { this.quantidade = quantidade; }
-    public BigDecimal getPrecoPorQuilo() { return precoPorQuilo; }
-    public void setPrecoPorQuilo(BigDecimal precoPorQuilo) { this.precoPorQuilo = precoPorQuilo; }
+    public BigDecimal getPreco() { return preco; }
+    public void setPreco(BigDecimal preco) { this.preco = preco; }
     public LocalDate getDataEmbarque() { return dataEmbarque; }
     public void setDataEmbarque(LocalDate dataEmbarque) { this.dataEmbarque = dataEmbarque; }
     public LocalDate getDataChegada() { return dataChegada; }
