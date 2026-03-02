@@ -1,6 +1,5 @@
 package com.claudio.importcontrol.infra.security.Security;
 
-
 import com.claudio.importcontrol.repository.UsuarioRepository;
 import com.claudio.importcontrol.service.TokenService;
 import jakarta.servlet.FilterChain;
@@ -24,19 +23,14 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private UsuarioRepository repository;
 
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String uri = request.getRequestURI();
-        if (uri.equals("/error") || uri.equals("/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         var tokenJWT = recuperarToken(request);
 
-        try {
-            if (tokenJWT != null) {
+        if (tokenJWT != null) {
+            try {
                 var subject = tokenService.getSubject(tokenJWT);
                 var usuarioOptional = repository.findByEmail(subject);
 
@@ -45,22 +39,22 @@ public class SecurityFilter extends OncePerRequestFilter {
                     var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
+            } catch (Exception e) {
+
+                System.err.println("Token inválido ou expirado: " + e.getMessage());
             }
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            System.err.println("ERRO NO FILTRO: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Erro interno no filtro de seguranca: " + e.getMessage());
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String recuperarToken(HttpServletRequest request) {
         var authorizationHeader = request.getHeader("Authorization");
-        System.out.println("DEBUG - Header Authorization: " + authorizationHeader);
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            return null;
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.replace("Bearer ", "").trim();
         }
-        return authorizationHeader.replace("Bearer ", "").trim();
+
+        return null;
     }
 }

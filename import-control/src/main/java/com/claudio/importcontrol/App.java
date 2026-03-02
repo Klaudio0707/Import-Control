@@ -7,7 +7,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class App {
+
 	public static void main(String[] args) {
+
     Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
     String port = dotenv.get("PORT");

@@ -31,6 +31,8 @@ public record ProcessoDTO(
     BigDecimal preco,
     @NotNull(message = "Previsão de embarque é obrigatória")
     LocalDate previsaoEmbarque,
+
+     BigDecimal taxaCambio,
     
     LocalDate dataEmbarque,
     LocalDate dataChegada,

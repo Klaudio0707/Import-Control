@@ -45,42 +45,16 @@ public class ProcessoService {
     @Transactional
     public ProcessoImportacao salvar(ProcessoDTO dados) {
         if (repository.existsByNumeroProcesso(dados.numeroProcesso())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um processo cadastrado com o número " + dados.numeroProcesso());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um processo com o número: " + dados.numeroProcesso());
         }
 
         ProcessoImportacao processo = new ProcessoImportacao();
 
-        // Regra da Condição de Pagamento
-        if (dados.condicaoPagamentoId() != null) {
-            CondicaoPagamento condicao = condicaoPagamentoRepository.findById(dados.condicaoPagamentoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Condição de Pagamento não encontrada. ID: " + dados.condicaoPagamentoId()));
-            processo.setCondicaoPagamento(condicao);
-        }
-
-        processo.setNumeroProcesso(dados.numeroProcesso());
-        processo.setIdentificadorInvoice(dados.identificadorInvoice());
-        processo.setFornecedor(dados.fornecedor());
-        processo.setProduto(dados.produto());
-        processo.setQuantidade(dados.quantidade());
-        processo.setPreco(dados.preco());
-        processo.setUnidadeMedida(dados.unidadeMedida());
-
-        // Datas
-        processo.setPrevisaoEmbarque(dados.previsaoEmbarque());
-        processo.setDataEmbarque(dados.dataEmbarque());
-
-        // Enums
-        processo.setStatusLogistico(dados.statusProcesso());
-        processo.setStatusFinanceiro(dados.statusPagamento());
-        processo.setDI(dados.DI());
-
-        if (dados.usuarioId() != null) {
-            Usuario usuario = usuarioRepository.findById(dados.usuarioId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + dados.usuarioId()));
-            processo.setUsuario(usuario);
-        }
+        // Mapeia todos os campos e relacionamentos de uma vez só
+        mapearDados(processo, dados);
 
         ProcessoImportacao processoSalvo = repository.save(processo);
+
         eventoService.registrarAutomatico(
                 processoSalvo.getId(),
                 processoSalvo.getStatusLogistico().toString(),
@@ -95,35 +69,47 @@ public class ProcessoService {
         ProcessoImportacao processo = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado."));
 
-        if (!processo.getNumeroProcesso().equals(dados.numeroProcesso())) {
-            if (repository.existsByNumeroProcesso(dados.numeroProcesso())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um processo cadastrado com o número " + dados.numeroProcesso());
-            }
-            processo.setNumeroProcesso(dados.numeroProcesso());
+        if (!processo.getNumeroProcesso().equals(dados.numeroProcesso()) &&
+                repository.existsByNumeroProcesso(dados.numeroProcesso())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um processo com o número " + dados.numeroProcesso());
         }
 
-        if (dados.condicaoPagamentoId() != null) {
-            CondicaoPagamento condicao = condicaoPagamentoRepository.findById(dados.condicaoPagamentoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Condição de Pagamento não encontrada. ID: " + dados.condicaoPagamentoId()));
-            processo.setCondicaoPagamento(condicao);
-        }
+        mapearDados(processo, dados);
 
+        return repository.save(processo);
+    }
+
+
+    private void mapearDados(ProcessoImportacao processo, ProcessoDTO dados) {
+        processo.setNumeroProcesso(dados.numeroProcesso());
         processo.setIdentificadorInvoice(dados.identificadorInvoice());
         processo.setFornecedor(dados.fornecedor());
         processo.setProduto(dados.produto());
         processo.setQuantidade(dados.quantidade());
-        processo.setUnidadeMedida(dados.unidadeMedida());
         processo.setPreco(dados.preco());
+        processo.setTaxaCambio(dados.taxaCambio());
+        processo.setUnidadeMedida(dados.unidadeMedida());
         processo.setPrevisaoEmbarque(dados.previsaoEmbarque());
         processo.setDataEmbarque(dados.dataEmbarque());
         processo.setDataChegada(dados.dataChegada());
         processo.setDI(dados.DI());
-
         processo.setStatusLogistico(dados.statusProcesso());
         processo.setStatusFinanceiro(dados.statusPagamento());
 
-        return repository.save(processo);
+        if (dados.condicaoPagamentoId() != null) {
+            CondicaoPagamento condicao = condicaoPagamentoRepository.findById(dados.condicaoPagamentoId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Condição de Pagamento não encontrada."));
+            processo.setCondicaoPagamento(condicao);
+        }
+
+
+        if (dados.usuarioId() != null) {
+            Usuario usuario = usuarioRepository.findById(dados.usuarioId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não encontrado."));
+            processo.setUsuario(usuario);
+        }
     }
+
 
     public List<ProcessoImportacao> buscarPorFornecedor(String nome) {
         return repository.findByFornecedorContainingIgnoreCase(nome);
@@ -134,14 +120,13 @@ public class ProcessoService {
     }
 
     public ProcessoImportacao buscarPorId(String id) {
-        return repository.findById(id).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo com ID " + id + " não encontrado.")
+        return repository.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado.")
         );
     }
 
     public void excluir(String id) {
-        ProcessoImportacao processo = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo com ID " + id + " não encontrado."));
+        ProcessoImportacao processo = buscarPorId(id);
         repository.delete(processo);
     }
 }

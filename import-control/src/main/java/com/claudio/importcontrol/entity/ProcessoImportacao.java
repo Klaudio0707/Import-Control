@@ -35,6 +35,13 @@ public class ProcessoImportacao {
     private LocalDate dataEmbarque;
     private LocalDate dataChegada;
     private LocalDate previsaoEmbarque;
+
+    @Column(name = "taxa_cambio", precision = 10, scale = 4)
+    private BigDecimal taxaCambio;
+
+    @Column(name = "valor_total_real")
+    private BigDecimal valorTotalReal;
+
     private String DI; 
 
     @Column(name = "dias_para_pagamento")
@@ -68,6 +75,7 @@ public class ProcessoImportacao {
         this.fornecedor = fornecedor;
     }
 
+
     @PrePersist
     @PreUpdate
     public void prepararDados() {
@@ -81,6 +89,13 @@ public class ProcessoImportacao {
 
         if (this.quantidade != null && this.preco != null) {
             this.valorTotal = this.preco.multiply(BigDecimal.valueOf(this.quantidade));
+
+            if (this.taxaCambio != null && this.taxaCambio.compareTo(BigDecimal.ZERO) > 0) {
+                this.valorTotalReal = this.valorTotal.multiply(this.taxaCambio)
+                        .setScale(2, java.math.RoundingMode.HALF_UP);
+            } else {
+                this.valorTotalReal = null;
+            }
         }
     }
 
@@ -116,6 +131,26 @@ public class ProcessoImportacao {
 
     public String getProduto() { return produto; }
     public void setProduto(String produto) { this.produto = produto; }
+
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
+    }
+
+    public BigDecimal getTaxaCambio() {
+        return taxaCambio;
+    }
+
+    public void setTaxaCambio(BigDecimal taxaCambio) {
+        this.taxaCambio = taxaCambio;
+    }
+
+    public BigDecimal getValorTotalReal() {
+        return valorTotalReal;
+    }
+
+    public void setValorTotalReal(BigDecimal valorTotalReal) {
+        this.valorTotalReal = valorTotalReal;
+    }
 
     public Double getQuantidade() { return quantidade; }
     public void setQuantidade(Double quantidade) { this.quantidade = quantidade; }
