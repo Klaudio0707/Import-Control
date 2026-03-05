@@ -4,7 +4,7 @@ import com.claudio.importcontrol.entity.ProcessoImportacao;
 import java.math.BigDecimal;
 
 public record ProcessoResponseDTO(
-        String id, // UUID (String)
+        String id,
         String numeroProcesso,
         String fornecedor,
         String produto,
@@ -21,14 +21,13 @@ public record ProcessoResponseDTO(
                 processo.getFornecedor(),
                 processo.getProduto(),
                 processo.getValorTotal(),
-                processo.getStatusLogistico() != null ? processo.getStatusLogistico().toString() : "N/A",
-                processo.getStatusPrazo(),
+                processo.getStatusLogistico() != null ? processo.getStatusLogistico().name() : "INDEFINIDO",
+                processo.getStatusFinanceiro() != null ? processo.getStatusFinanceiro().name() : "INDEFINIDO",
+                processo.getUsuario() != null ? processo.getUsuario().getNome() : "Sem Responsável",
 
-                processo.getUsuario() != null ? processo.getUsuario().getNome() : "Sem responsável",
-
-                (processo.getUsuario() != null && processo.getUsuario().getEmpresa() != null)
+                processo.getUsuario() != null && processo.getUsuario().getEmpresa() != null
                         ? processo.getUsuario().getEmpresa().getRazaoSocial()
-                        : "Sem empresa vinculada"
+                        : "Sem Empresa"
         );
     }
 }

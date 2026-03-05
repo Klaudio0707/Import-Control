@@ -1,61 +1,32 @@
 package com.claudio.importcontrol.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import com.claudio.importcontrol.enums.StatusPagamento;
-import com.claudio.importcontrol.enums.StatusProcesso;
-import com.claudio.importcontrol.enums.UnidadeMedida;
-
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record ProcessoDTO(
+        @NotBlank String numeroProcesso,
+        @NotBlank String identificadorInvoice,
+        @NotBlank String fornecedor,
+        @NotBlank String produto,
+        @NotNull @Positive Double quantidade,
+        @NotNull @Positive BigDecimal preco,
+        @NotNull LocalDate previsaoEmbarque,
+        @NotBlank String unidadeMedida,
+        @NotBlank String statusProcesso,
+        @NotBlank String statusPagamento,
+        @NotNull Long usuarioId,
 
-     @NotBlank(message = "Numero do processo é obrigatório")
-    String numeroProcesso,
-     @NotBlank(message = "Identificador do invoice é obrigatório")
-    String identificadorInvoice,
-     @NotBlank(message = "Fornecedor é obrigatório")
-    String fornecedor,
-     @NotBlank(message = "Produto é obrigatório")
-    String produto,
-    @NotNull(message = "Quantidade é obrigatória")
-    @Positive(message = "Quantidade deve ser maior que zero")
-    Double quantidade,
-    @NotNull(message = "Unidade de medida é obrigatória")
-    UnidadeMedida unidadeMedida,
-    @NotNull(message = "Preço por quilo é obrigatório")
-    @Positive(message = "Preço deve ser maior que zero")
-    BigDecimal preco,
-    @NotNull(message = "Previsão de embarque é obrigatória")
-    LocalDate previsaoEmbarque,
 
-     BigDecimal taxaCambio,
-    
-    LocalDate dataEmbarque,
-    LocalDate dataChegada,
+        @Valid CondicaoPagamentoDTO condicaoPagamento,
 
-    LocalDate dataVencimento,
-    LocalDate dataPagamento, 
-    
-   @NotNull(message = "Status do processo é obrigatório")
-    StatusProcesso statusProcesso, 
 
-    @NotNull(message = "Status do pagamento é obrigatório")
-    StatusPagamento statusPagamento,
-
-     @NotNull(message = "A condição de pagamento é obrigatória")
-     Long condicaoPagamentoId,
-    
-    Integer diasParaPagamento, 
-
-    String DI,
-   
-    @NotNull(message = "O ID do usuário responsável é obrigatório")
-    Long usuarioId
-) {
-    
-    
-}
+        BigDecimal taxaCambio,
+        LocalDate dataEmbarque,
+        LocalDate dataChegada,
+        String DI,
+        Long condicaoPagamentoId
+) {}

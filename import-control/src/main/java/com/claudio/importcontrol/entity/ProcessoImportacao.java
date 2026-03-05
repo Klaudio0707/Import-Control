@@ -69,10 +69,23 @@ public class ProcessoImportacao {
 
     public ProcessoImportacao() {}
 
-    public ProcessoImportacao(String numeroProcesso, String invoice, String fornecedor) {
-        this.numeroProcesso = numeroProcesso;
-        this.identificadorInvoice = invoice;
-        this.fornecedor = fornecedor;
+    public CondicaoPagamento getCondicaoPagamento() {
+        return condicaoPagamento;
+    }
+
+
+    public ProcessoImportacao(com.claudio.importcontrol.dto.ProcessoDTO dto) {
+        this.numeroProcesso = dto.numeroProcesso();
+        this.identificadorInvoice = dto.identificadorInvoice();
+        this.fornecedor = dto.fornecedor();
+        this.produto = dto.produto();
+        this.quantidade = dto.quantidade();
+        this.preco = dto.preco();
+        this.previsaoEmbarque = dto.previsaoEmbarque();
+
+        this.unidadeMedida = UnidadeMedida.valueOf(dto.unidadeMedida());
+        this.statusLogistico = StatusProcesso.valueOf(dto.statusProcesso());
+        this.statusFinanceiro = StatusPagamento.valueOf(dto.statusPagamento());
     }
 
 
