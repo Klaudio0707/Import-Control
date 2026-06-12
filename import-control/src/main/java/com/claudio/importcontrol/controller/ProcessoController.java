@@ -1,17 +1,15 @@
 package com.claudio.importcontrol.controller;
 
-import java.util.List;
-
+import com.claudio.importcontrol.dto.ProcessoDTO;
 import com.claudio.importcontrol.dto.ProcessoResponseDTO;
+import com.claudio.importcontrol.entity.ProcessoImportacao;
+import com.claudio.importcontrol.service.ProcessoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.claudio.importcontrol.dto.ProcessoDTO;
-import com.claudio.importcontrol.entity.ProcessoImportacao;
-import com.claudio.importcontrol.service.ProcessoService;
-
-import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/processos")
@@ -23,7 +21,7 @@ public class ProcessoController {
         this.service = service;
     }
 
-    @GetMapping("/lista")
+    @GetMapping
     public ResponseEntity<List<ProcessoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(service.listar());
     }
@@ -40,18 +38,18 @@ public class ProcessoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProcessoResponseDTO> atualizar(@PathVariable String id, @RequestBody ProcessoDTO dados) {
+    public ResponseEntity<ProcessoResponseDTO> atualizar(@PathVariable String id, @RequestBody @Valid ProcessoDTO dados) {
         ProcessoImportacao processoAtualizado = service.atualizar(id, dados);
         return ResponseEntity.ok(new ProcessoResponseDTO(processoAtualizado));
     }
 
-    @GetMapping("/filtro")
+    @GetMapping("/busca/fornecedor")
     public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorFornecedor(@RequestParam("nome") String nome) {
         return ResponseEntity.ok(service.buscarPorFornecedor(nome));
     }
 
-    @GetMapping("/quantidade/{qtd}")
-    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorQuantidade(@PathVariable Double qtd) {
+    @GetMapping("/busca/quantidade")
+    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorQuantidade(@RequestParam("minima") Double qtd) {
         return ResponseEntity.ok(service.buscarMaioresQue(qtd));
     }
 
