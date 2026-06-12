@@ -24,9 +24,14 @@ public class AutenticacaoController {
     @Autowired
     private TokenService tokenService;
 
+    public AutenticacaoController(AuthenticationManager manager, TokenService tokenService) {
+        this.manager = manager;
+        this.tokenService = tokenService;
+    }
     @PostMapping
-    public ResponseEntity efetuarLogin(@RequestBody @Valid DadosAutenticacaoDTO dados) {
+    public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacaoDTO dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
+
         var authentication = manager.authenticate(authenticationToken);
 
         var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());

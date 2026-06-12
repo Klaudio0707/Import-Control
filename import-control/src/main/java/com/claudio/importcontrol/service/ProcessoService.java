@@ -41,10 +41,7 @@ public class ProcessoService {
         this.condicaoService = condicaoService;
     }
 
-    // --- MÉTODOS DE LEITURA (Retornam DTOs) ---
-
     public List<ProcessoResponseDTO> listar() {
-        // Usa o método otimizado para evitar N+1
         return repository.findAllComRelacionamentos().stream()
                 .map(ProcessoResponseDTO::new)
                 .toList();
@@ -65,10 +62,6 @@ public class ProcessoService {
     public ProcessoResponseDTO buscarPorIdDTO(String id) {
         return new ProcessoResponseDTO(buscarEntidadePorId(id));
     }
-
-    // --- MÉTODOS DE ESCRITA E AUXILIARES (Lidam com Entidades) ---
-
-    // Método auxiliar privado para buscar a entidade sem expor o banco
     private ProcessoImportacao buscarEntidadePorId(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado."));
@@ -106,7 +99,6 @@ public class ProcessoService {
     }
 
     public void excluir(String id) {
-        // Agora busca a Entidade e deleta corretamente
         ProcessoImportacao processo = buscarEntidadePorId(id);
         repository.delete(processo);
     }
