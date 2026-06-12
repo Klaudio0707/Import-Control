@@ -1,131 +1,67 @@
-package com.claudio.importcontrol.service;
+package com.claudio.importcontrol.controller;
 
 import java.util.List;
 
-import com.claudio.importcontrol.enums.StatusPagamento;
-import com.claudio.importcontrol.enums.StatusProcesso;
-import com.claudio.importcontrol.enums.UnidadeMedida;
+import com.claudio.importcontrol.dto.ProcessoResponseDTO;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.claudio.importcontrol.dto.ProcessoDTO;
-import com.claudio.importcontrol.entity.CondicaoPagamento;
 import com.claudio.importcontrol.entity.ProcessoImportacao;
-import com.claudio.importcontrol.entity.Usuario;
-import com.claudio.importcontrol.repository.CondicaoPagamentoRepository;
-import com.claudio.importcontrol.repository.ProcessoRepository;
-import com.claudio.importcontrol.repository.UsuarioRepository;
+import com.claudio.importcontrol.service.ProcessoService;
 
-import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
-@Service
-public class ProcessoService {
+@RestController
+@RequestMapping("/processos")
+public class ProcessoController {
 
-    private final ProcessoRepository repository;
-    private final EventoService eventoService;
-    private final UsuarioRepository usuarioRepository;
-    private final CondicaoPagamentoRepository condicaoPagamentoRepository;
+    private final ProcessoService service;
 
-    private final CondicaoPagamentoService condicaoService;
-
-    public ProcessoService(ProcessoRepository repository,
-                           UsuarioRepository usuarioRepository,
-                           EventoService eventoService,
-                           CondicaoPagamentoRepository condicaoPagamentoRepository,
-                           CondicaoPagamentoService condicaoService) {
-        this.repository = repository;
-        this.usuarioRepository = usuarioRepository;
-        this.eventoService = eventoService;
-        this.condicaoPagamentoRepository = condicaoPagamentoRepository;
-        this.condicaoService = condicaoService;
+    public ProcessoController(ProcessoService service) {
+        this.service = service;
     }
 
-    public List<ProcessoImportacao> listar() {
-        return repository.findAll();
+    @GetMapping("/lista")
+    public ResponseEntity<List<ProcessoResponseDTO>> listarTodos() {
+        // Como a service já devolve a lista de DTOs mapeada, é só repassar!
+        return ResponseEntity.ok(service.listar());
     }
 
-    @Transactional
-    public ProcessoImportacao salvar(ProcessoDTO dados) {
-        ProcessoImportacao novoProcesso = new ProcessoImportacao();
-
-        // Mapeia os dados básicos
-        mapearDados(novoProcesso, dados);
-
-        // A MÁGICA: Se o React mandou o objeto Condição, usamos a lógica Smart
-        if (dados.condicaoPagamento() != null && dados.condicaoPagamento().descricao() != null) {
-            Usuario usuario = novoProcesso.getUsuario();
-            CondicaoPagamento condicao = condicaoService.buscarOuCriar(
-                    dados.condicaoPagamento().descricao(),
-                    dados.condicaoPagamento().diasPrazo(),
-                    usuario
-            );
-            novoProcesso.setCondicaoPagamento(condicao);
-        }
-
-        return repository.save(novoProcesso);
+    @PostMapping
+    public ResponseEntity<ProcessoResponseDTO> criar(@RequestBody @Valid ProcessoDTO dados) {
+        ProcessoImportacao processoSalvo = service.salvar(dados);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ProcessoResponseDTO(processoSalvo));
     }
 
-    @Transactional
-    public ProcessoImportacao atualizar(String id, ProcessoDTO dados) {
-        ProcessoImportacao processo = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado."));
-
-        if (!processo.getNumeroProcesso().equals(dados.numeroProcesso()) &&
-                repository.existsByNumeroProcesso(dados.numeroProcesso())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um processo com o número " + dados.numeroProcesso());
-        }
-
-        mapearDados(processo, dados);
-
-        return repository.save(processo);
+    @GetMapping("/{id}")
+    public ResponseEntity<ProcessoResponseDTO> buscarPorId(@PathVariable String id) {
+        // Já devolve o DTO direto
+        return ResponseEntity.ok(service.buscarPorIdDTO(id));
     }
 
-    private void mapearDados(ProcessoImportacao processo, ProcessoDTO dados) {
-        processo.setNumeroProcesso(dados.numeroProcesso());
-        processo.setIdentificadorInvoice(dados.identificadorInvoice());
-        processo.setFornecedor(dados.fornecedor());
-        processo.setProduto(dados.produto());
-        processo.setQuantidade(dados.quantidade());
-        processo.setPreco(dados.preco());
-        processo.setTaxaCambio(dados.taxaCambio());
-        processo.setUnidadeMedida(UnidadeMedida.valueOf(dados.unidadeMedida().toUpperCase()));
-        processo.setPrevisaoEmbarque(dados.previsaoEmbarque());
-        processo.setDataEmbarque(dados.dataEmbarque());
-        processo.setDataChegada(dados.dataChegada());
-        processo.setDI(dados.DI());
-        processo.setStatusLogistico(StatusProcesso.valueOf(dados.statusProcesso().toUpperCase()));
-        processo.setStatusFinanceiro(StatusPagamento.valueOf(dados.statusPagamento().toUpperCase()));
-
-        if (dados.condicaoPagamentoId() != null) {
-            CondicaoPagamento condicao = condicaoPagamentoRepository.findById(dados.condicaoPagamentoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Condição de Pagamento não encontrada."));
-            processo.setCondicaoPagamento(condicao);
-        }
-
-        if (dados.usuarioId() != null) {
-            Usuario usuario = usuarioRepository.findById(dados.usuarioId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Usuário não encontrado."));
-            processo.setUsuario(usuario);
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<ProcessoResponseDTO> atualizar(@PathVariable String id, @RequestBody ProcessoDTO dados) {
+        ProcessoImportacao processoAtualizado = service.atualizar(id, dados);
+        return ResponseEntity.ok(new ProcessoResponseDTO(processoAtualizado));
     }
 
-    public List<ProcessoImportacao> buscarPorFornecedor(String nome) {
-        return repository.findByFornecedorContainingIgnoreCase(nome);
+    @GetMapping("/filtro")
+    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorFornecedor(@RequestParam("nome") String nome) {
+        // Já devolve a lista de DTOs pronta
+        return ResponseEntity.ok(service.buscarPorFornecedor(nome));
     }
 
-    public List<ProcessoImportacao> buscarMaioresQue(Double quantidade) {
-        return repository.buscarAcimaDe(quantidade);
+    @GetMapping("/quantidade/{qtd}")
+    public ResponseEntity<List<ProcessoResponseDTO>> filtrarPorQuantidade(@PathVariable Double qtd) {
+        // Já devolve a lista de DTOs pronta
+        return ResponseEntity.ok(service.buscarMaioresQue(qtd));
     }
 
-    public ProcessoImportacao buscarPorId(String id) {
-        return repository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Processo não encontrado.")
-        );
-    }
-
-    public void excluir(String id) {
-        ProcessoImportacao processo = buscarPorId(id);
-        repository.delete(processo);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable String id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }
