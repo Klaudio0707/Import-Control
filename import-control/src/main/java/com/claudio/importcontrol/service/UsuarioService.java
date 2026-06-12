@@ -30,7 +30,6 @@ public class UsuarioService {
         if (repository.existsByEmail(dados.email())) {
             throw new EmailJaCadastradoException("O e-mail " + dados.email() + " já está cadastrado.");
         }
-
         Empresa empresa = empresaService.salvarEmpresaPeloCnpj(dados.cnpj());
 
         Usuario usuario = new Usuario();
