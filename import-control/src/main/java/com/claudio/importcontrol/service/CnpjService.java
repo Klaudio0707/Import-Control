@@ -1,24 +1,30 @@
 package com.claudio.importcontrol.service;
 
-
 import com.claudio.importcontrol.dto.CnpjResDTO;
+import com.claudio.importcontrol.exception.CnpjNaoEncontradoException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
 
 @Service
 public class CnpjService {
-    private static final RestTemplate restTemplate = new RestTemplate();
 
-    public static CnpjResDTO consultarCnpj(String cnpj) {
+    private final RestTemplate restTemplate;
+
+    // Injeção limpa no construtor. Sem uso de "static"
+    public CnpjService() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public CnpjResDTO consultarCnpj(String cnpj) {
         String cleanCnpj = cnpj.replaceAll("\\D", "");
         String url = "https://brasilapi.com.br/api/cnpj/v1/" + cleanCnpj;
-
         try {
             return restTemplate.getForObject(url, CnpjResDTO.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new CnpjNaoEncontradoException("O CNPJ " + cnpj + " é inválido ou não consta na base da Receita Federal.");
         } catch (Exception e) {
-            //  a API retorna 404 e cai aqui
-            throw new RuntimeException("Erro ao consultar CNPJ: " + e.getMessage());
+            throw new RuntimeException("Falha na integração com a BrasilAPI: " + e.getMessage());
         }
     }
 }
