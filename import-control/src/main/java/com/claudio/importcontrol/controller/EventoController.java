@@ -27,8 +27,6 @@ public class EventoController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
-
     @GetMapping("/processo/{processoId}")
     public ResponseEntity<List<EventoResponseDTO>> buscarTimeline(@PathVariable String processoId) {
         return ResponseEntity.ok(service.listarHistoricoDoProcesso(processoId));
