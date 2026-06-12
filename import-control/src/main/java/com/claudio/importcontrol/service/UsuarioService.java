@@ -2,12 +2,10 @@ package com.claudio.importcontrol.service;
 
 import com.claudio.importcontrol.dto.UsuarioResponseDTO;
 import com.claudio.importcontrol.entity.Empresa;
+import com.claudio.importcontrol.exception.EmailJaCadastradoException;
+import com.claudio.importcontrol.exception.UsuarioNaoEncontradoException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.claudio.importcontrol.dto.UsuarioDTO;
@@ -29,6 +27,10 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     public Usuario criar(UsuarioDTO dados) {
+        if (repository.existsByEmail(dados.email())) {
+            throw new EmailJaCadastradoException("O e-mail " + dados.email() + " já está cadastrado.");
+        }
+
         Empresa empresa = empresaService.salvarEmpresaPeloCnpj(dados.cnpj());
 
         Usuario usuario = new Usuario();
@@ -37,19 +39,14 @@ public class UsuarioService {
         usuario.setEmpresa(empresa);
         usuario.setAcesso(dados.acesso());
 
-        // Criptografia
         usuario.setSenha(passwordEncoder.encode(dados.senha()));
 
-        try {
-            return repository.save(usuario);
-        } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "O e-mail " + dados.email() + " já está cadastrado.");
-        }
+        return repository.save(usuario);
     }
 
     public Usuario buscarPorId(Long id) {
         return repository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com ID " + id + " não encontrado.")
+                new UsuarioNaoEncontradoException("Usuário com ID " + id + " não encontrado.")
         );
     }
 
