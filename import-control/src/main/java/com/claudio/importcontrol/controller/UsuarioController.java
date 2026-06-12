@@ -20,19 +20,19 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
-    @PostMapping("/cadastrar")
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
     public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioDTO dados) {
-
         Usuario usuarioSalvo = service.criar(dados);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(new UsuarioResponseDTO(usuarioSalvo));
     }
-        @GetMapping("/{id}")
-    public Usuario buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
+        Usuario usuario = service.buscarPorId(id);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
-    @GetMapping("/lista")
+
+    @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listar() {
         return ResponseEntity.ok(service.listar());
     }
